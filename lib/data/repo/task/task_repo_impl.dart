@@ -3,7 +3,6 @@ import 'package:login_and_registration/data/models/task.dart';
 import 'package:login_and_registration/data/repo/task/task_repo.dart';
 import 'package:login_and_registration/data/services/api/models/app_response.dart';
 import 'package:login_and_registration/utils/constants/end_points.dart';
-import 'package:login_and_registration/utils/constants/keys.dart';
 import 'package:login_and_registration/utils/exception/exception.dart';
 
 class TaskRepoImpl extends TaskRepository {
@@ -40,13 +39,12 @@ class TaskRepoImpl extends TaskRepository {
 
   @override
   Future<void> completeTask(Task task) async {
-    task = Task(id: task.id, title: task.title, completed: true);
-
     if (await connectivityService.isConnected) {
       try {
-        AppResponse response = await apiService.put(
+        AppResponse response = await apiService.patch(
             url: '${AppEndPoints.todos}/${task.id}',
             data: {'completed': !task.completed});
+        logger.e('TAG : ${response.isSuccess}');
         if (!response.isSuccess) {
           throw RepoException(response.message);
         }
@@ -54,6 +52,7 @@ class TaskRepoImpl extends TaskRepository {
         throw RepoException(e.toString());
       }
     }
+    task = Task(id: task.id, title: task.title, completed: !task.completed);
     await taskDaoService.updateTask(task); // Update locally
 
     // Queue for syncing if offline
@@ -81,25 +80,32 @@ class TaskRepoImpl extends TaskRepository {
 
   @override
   Future<List<Task>> fetchTasks() async {
-    if (await connectivityService.isConnected) {
+    /* if (await connectivityService.isConnected) {
       try {
+        //now first fetch all tasks from local database and remove all tasks from the local database
+        await taskDaoService.deleteAllTasks();
         AppResponse response = await apiService.get(url: AppEndPoints.todos);
         if (response.isSuccess) {
-          List<Task> tasks = [];
-
-          return response.data.isNotEmpty
+          List<Task> taskList = response.data.isNotEmpty
               ? response.data[AppKeys.data]
                   .map<Task>((e) => Task.fromJson(e))
                   .toList()
-              : tasks;
+              : [];
+          // add all fetched tasks into the local database and fetch from the local database
+          if (taskList.isNotEmpty) {
+            await taskDaoService.addAllTasks(taskList);
+            taskList = await taskDaoService.getTasks();
+          }
+          return taskList;
         } else {
           throw RepoException(response.message);
         }
       } catch (e) {
         throw RepoException(e.toString());
       }
-    } else {
-      return await taskDaoService.getTasks();
-    }
+    } else {*/
+
+    return await taskDaoService.getTasks();
+    // }
   }
 }

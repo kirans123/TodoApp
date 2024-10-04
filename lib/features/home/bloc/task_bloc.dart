@@ -42,6 +42,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       await taskRepository.completeTask(event.task);
       emit(TaskCompletedState(event.task));
       add(LoadTasksEvent()); // Re-fetch tasks after completing a task
+      //no need to reload tasks after completing a task, just update the task in the list of local tasks
     } catch (e) {
       emit(TaskErrorState('Failed to complete task: $e'));
     }

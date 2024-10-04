@@ -11,6 +11,8 @@ abstract class TaskDaoService {
   Future<int> updateTask(Task task);
 
   Future<int> deleteTask(int id);
+  Future<void> addAllTasks(List<Task> tasks);
+  Future<int> deleteAllTasks();
   Future<int> addToSyncQueue(int taskId, String action, Task task);
   Future<List<Map<String, dynamic>>> getSyncQueue();
   Future<int> deleteSyncQueueItem(int id);

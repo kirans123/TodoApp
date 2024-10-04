@@ -27,7 +27,16 @@ mixin FormValidationMixin {
     return null;
   }
 
-  String? validateEmpty(String? value, String? hintText) {
+  String? validateEmpty(
+    String? value,
+  ) {
+    if (value == null || value.isEmpty || value.trim().isEmpty) {
+      return 'Please enter a task';
+    }
+    return null;
+  }
+
+  String? validateTask(String? value, String? hintText) {
     if (value == null || value.isEmpty || value.trim().isEmpty) {
       return 'Please enter ${hintText?.toLowerCase() ?? 'value'}';
     }

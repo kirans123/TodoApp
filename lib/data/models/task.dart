@@ -10,7 +10,9 @@ class Task {
     return Task(
       id: json['id'],
       title: json['title'],
-      completed: json['completed'] ?? false,
+      completed: json['completed'] is bool
+          ? json['completed']
+          : json['completed'] == 1, // Handle both bool and int
     );
   }
 
@@ -19,7 +21,7 @@ class Task {
     return {
       'id': id,
       'title': title,
-      'completed': completed,
+      'completed': completed ? 1 : 0,
     };
   }
 }

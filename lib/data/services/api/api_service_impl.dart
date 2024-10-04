@@ -1,11 +1,9 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/services.dart';
 import 'package:login_and_registration/data/init/init_service.dart';
 import 'package:login_and_registration/data/services/api/api_service.dart';
 import 'package:login_and_registration/data/services/api/interceptor/session_interceptors.dart';
 import 'package:login_and_registration/data/services/api/models/api_config.dart';
 import 'package:login_and_registration/data/services/api/models/app_response.dart';
-import 'package:login_and_registration/utils/check_platform/check_platform.dart';
 import 'package:login_and_registration/utils/constants/constants.dart';
 import 'package:login_and_registration/utils/constants/keys.dart';
 import 'package:talker_dio_logger/talker_dio_logger_interceptor.dart';
@@ -24,10 +22,6 @@ class ApiServiceImpl implements ApiService {
 
   @override
   String get requestTime => DateTime.now().millisecondsSinceEpoch.toString();
-
-  final contentType = (CheckPlatform.isWeb) ? 'audio/webm' : "audio/wav";
-
-  final formatType = (CheckPlatform.isWeb) ? 'webm' : "wav";
 
   @override
   void init({
@@ -166,132 +160,12 @@ class ApiServiceImpl implements ApiService {
     );
   }
 
-  @override
-  Future<AppResponse> multipartUpload({
-    required String url,
-    required String filePath,
-    required List<String> tags,
-    Map<String, dynamic> queryParams = const {},
-  }) async {
-    try {
-      final headers = {
-        'Accept': '*/*',
-        'Authorization': 'Bearer $token',
-        'Content-Type': contentType,
-      };
-
-      FormData formData = await _getFormData(
-        filePath,
-        tags,
-      );
-
-      var response = await dio.post(
-        url,
-        data: formData,
-        queryParameters: queryParams,
-        options: Options(
-          headers: headers,
-          contentType: contentType,
-          followRedirects: true,
-          maxRedirects: 2,
-          preserveHeaderCase: true,
-          validateStatus: (status) {
-            // Accept all status codes for now, adjust as necessary
-            return status != null && status >= 200 && status < 400;
-          },
-        ),
-      );
-      if (response.statusCode == 307) {
-        // Handle the redirection manually
-        var redirectedUrl = response.headers['location']?.first;
-        if (redirectedUrl != null) {
-          // Create a new instance of FormData for the redirected request
-          var newFormData = await _getFormData(
-            filePath,
-            tags,
-          );
-
-          // Re-send the request to the new location
-          var redirectedResponse = await dio.post(
-            redirectedUrl,
-            data: newFormData,
-            options: Options(
-              headers: headers,
-            ),
-          );
-          if (redirectedResponse.statusCode != null &&
-              redirectedResponse.statusCode! >= 200 &&
-              redirectedResponse.statusCode! < 300) {
-            //check if redirectedResponse has error key then return error else return success
-            //from backend receiving same same status code for both success and error
-            //so checking error key in response to differentiate between success and error
-            if (redirectedResponse.data[AppKeys.error] != null) {
-              return AppResponse.error(
-                message: redirectedResponse.data[AppKeys.message],
-              );
-            } else {
-              return AppResponse.fromDioResponse(redirectedResponse);
-            }
-          } else {
-            return AppResponse.error(message: 'Failed to upload a note');
-          }
-        }
-      } else if (response.statusCode != null &&
-          response.statusCode! >= 200 &&
-          response.statusCode! < 300) {
-        return AppResponse.fromDioResponse(response);
-      } else {
-        return AppResponse.error(message: 'Failed to upload a note');
-      }
-    } catch (e, s) {
-      return AppResponse.error(
-        message: 'Failed to upload a note',
-        error: e,
-        stackTrace: s,
-      );
-    }
-    return AppResponse();
-  }
-
-  Future<FormData> _getFormData(
-    String filePath,
-    List<String> tags,
-  ) async {
-    if (CheckPlatform.isWeb) {
-      final path = filePath.replaceFirst(r'blob:', '');
-
-      logger.i("File path: $path");
-      Response fileResponse = await dio.get(
-        path,
-        options: Options(
-          responseType: ResponseType.bytes,
-          contentType: contentType,
-        ),
-      );
-      Uint8List fileBytes = fileResponse.data;
-      return FormData.fromMap({
-        AppKeys.file: MultipartFile.fromBytes(
-          fileBytes,
-          filename: 'audio_${DateTime.now()}.$formatType',
-          headers: {
-            'Content-Type': [contentType],
-          },
-        ),
-        AppKeys.tags: tags,
-      });
-    } else {
-      return FormData.fromMap({
-        AppKeys.file: await MultipartFile.fromFile(filePath),
-        AppKeys.tags: tags,
-      });
-    }
-  }
-
   Future<AppResponse> _apiCall(
     Future<Response<dynamic>> Function() apiCall,
   ) async {
     try {
       final response = await apiCall();
+      logger.e('TAG API RESPONSE --> $response');
       return AppResponse.fromDioResponse(response);
     } on DioException catch (e, s) {
       if (e.type == DioExceptionType.connectionError) {

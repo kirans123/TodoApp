@@ -38,13 +38,6 @@ abstract class ApiService {
     data,
   });
 
-  Future<AppResponse> multipartUpload({
-    required String url,
-    required String filePath,
-    required List<String> tags,
-    Map<String, dynamic> queryParams = const {},
-  });
-
   Future<AppResponse> delete({
     required String url,
     Map<String, dynamic> queryParams,

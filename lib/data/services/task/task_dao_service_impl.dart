@@ -52,6 +52,10 @@ class TaskDaoServiceImpl implements TaskDaoService {
   @override
   Future<int> addTask(Task task) async {
     final db = await database;
+    return _addTask(task, db);
+  }
+
+  Future<int> _addTask(Task task, Database db) async {
     return await db.insert('tasks', task.toJson());
   }
 
@@ -93,5 +97,20 @@ class TaskDaoServiceImpl implements TaskDaoService {
   Future<int> deleteSyncQueueItem(int id) async {
     final db = await database;
     return await db.delete('sync_queue', where: 'id = ?', whereArgs: [id]);
+  }
+
+  @override
+  Future<void> addAllTasks(List<Task> tasks) async {
+    final db = await database;
+    for (Task task in tasks) {
+      _addTask(task, db);
+    }
+  }
+
+  //delete all tasks from the local database
+  @override
+  Future<int> deleteAllTasks() async {
+    final db = await database;
+    return await db.delete('tasks');
   }
 }
