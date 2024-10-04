@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "581198596915",
+    "project_id": "loginandreg-dd63b",
+    "storage_bucket": "loginandreg-dd63b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:581198596915:android:855385e3662f9239310c46",
+        "android_client_info": {
+          "package_name": "com.examp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCswZ7st_LkLpzSv0boMyJsVhPExZbEl9E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:581198596915:android:9d0edf833cc37c6d310c46",
+        "android_client_info": {
+          "package_name": "com.example.login_and_registration"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCswZ7st_LkLpzSv0boMyJsVhPExZbEl9E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
