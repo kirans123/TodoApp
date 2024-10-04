@@ -11,8 +11,12 @@ import 'package:login_and_registration/data/services/launch_url/launch_impl.dart
 import 'package:login_and_registration/data/services/launch_url/launch_service.dart';
 import 'package:login_and_registration/data/services/logger/log_service.dart';
 import 'package:login_and_registration/data/services/logger/log_service_impl.dart';
+import 'package:login_and_registration/data/services/network/connectivity_service.dart';
+import 'package:login_and_registration/data/services/network/connectivity_service_impl.dart';
 import 'package:login_and_registration/data/services/shared_pref/shared_pref_impl.dart';
 import 'package:login_and_registration/data/services/shared_pref/shared_pref_service.dart';
+import 'package:login_and_registration/data/services/task/task_dao_service.dart';
+import 'package:login_and_registration/data/services/task/task_dao_service_impl.dart';
 
 void initService({bool isProd = true}) {
   getIt.registerLazySingleton<ApiService>(() => ApiServiceImpl());
@@ -26,6 +30,9 @@ void initService({bool isProd = true}) {
   getIt.registerSingleton<ErrorHandlerService>(ErrorHandlerServiceImpl());
   getIt.registerLazySingleton<LogService>(() => LogServiceImpl(isProd));
   getIt.registerLazySingleton<LaunchService>(() => LaunchServiceImpl());
+  getIt.registerLazySingleton<TaskDaoService>(() => TaskDaoServiceImpl());
+  getIt.registerLazySingleton<ConnectivityService>(
+      () => ConnectivityServiceImpl());
 }
 
 ApiService get apiService => getIt.get();
@@ -35,3 +42,5 @@ LogService get logger => getIt.get();
 AuthService get authService => getIt.get();
 AppInfoService get appInfoService => getIt.get();
 LaunchService get launchService => getIt.get();
+TaskDaoService get taskDaoService => getIt.get();
+ConnectivityService get connectivityService => getIt.get();

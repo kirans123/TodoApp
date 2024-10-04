@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:login_and_registration/data/repo/auth_repo.dart';
+import 'package:login_and_registration/data/repo/auth/auth_repo.dart';
 
 class AuthRepositoryImpl extends AuthRepository {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;

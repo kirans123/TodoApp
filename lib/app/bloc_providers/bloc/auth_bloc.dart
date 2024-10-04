@@ -1,16 +1,14 @@
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:login_and_registration/data/init/init_repo.dart';
 import 'package:login_and_registration/data/init/init_service.dart';
 import 'package:login_and_registration/data/models/user_model.dart';
-import 'package:login_and_registration/data/repo/auth_repo.dart';
 
 import 'auth_event.dart';
 import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final AuthRepository authRepository;
-
-  AuthBloc(this.authRepository) : super(AuthInitial()) {
+  AuthBloc() : super(AuthInitial()) {
     on<RegisterUserEvent>(_registerUser);
     on<LoginUserEvent>(_loginUser);
   }

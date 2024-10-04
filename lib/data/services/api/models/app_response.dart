@@ -66,6 +66,12 @@ class AppResponse {
                   ? kSuccessMessage
                   : kServerErrorMessage);
         }
+      } else {
+        rawData = {
+          AppKeys.data: responseData,
+        };
+        data = rawData;
+        message = kSuccessMessage;
       }
     } catch (e) {
       statusCode = kServerErrorCode;

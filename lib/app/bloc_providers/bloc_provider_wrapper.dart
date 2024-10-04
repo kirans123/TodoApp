@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:login_and_registration/app/bloc_providers/bloc/auth_bloc.dart';
-import 'package:login_and_registration/data/repo/auth_repo.dart';
-import 'package:login_and_registration/data/repo/auth_repo_impl.dart';
+import 'package:login_and_registration/features/home/bloc/task_bloc.dart';
 
 class BlocProviderWrapper extends StatelessWidget {
   final Widget child;
@@ -11,22 +10,14 @@ class BlocProviderWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiRepositoryProvider(
+    return MultiBlocProvider(
       providers: [
-        RepositoryProvider<AuthRepository>(
-          create: (context) => AuthRepositoryImpl(),
+        BlocProvider<AuthBloc>(
+          create: (context) => AuthBloc(),
         ),
+        BlocProvider(create: (context) => TaskBloc()),
       ],
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider<AuthBloc>(
-            create: (context) => AuthBloc(
-              context.read<AuthRepository>(),
-            ),
-          ),
-        ],
-        child: child,
-      ),
+      child: child,
     );
   }
 }
