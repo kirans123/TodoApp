@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:login_and_registration/data/init/init_service.dart';
 import 'package:login_and_registration/utils/constants/constants.dart';
 import 'package:login_and_registration/utils/constants/keys.dart';
 import 'package:login_and_registration/utils/constants/map.dart';
@@ -36,7 +35,6 @@ class AppResponse {
       statusCode = response.statusCode ?? kServerErrorCode;
 
       if (responseData is Map<String, dynamic>) {
-        logger.e('TAG IN IF');
         //this is  the case for retrieving the list of records
         if (responseData.containsKey(AppKeys.data)) {
           if (responseData[AppKeys.data] is Map<String, dynamic>) {
@@ -69,7 +67,6 @@ class AppResponse {
                   : kServerErrorMessage);
         }
       } else {
-        logger.e('TAG IN ELSE');
         rawData = {
           AppKeys.data: responseData,
         };

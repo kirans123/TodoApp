@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:login_and_registration/data/init/init_service.dart';
 import 'package:login_and_registration/data/models/task.dart';
 import 'package:login_and_registration/data/services/task/task_dao_service.dart';
 import 'package:path/path.dart';
@@ -57,11 +56,9 @@ class TaskDaoServiceImpl implements TaskDaoService {
   }
 
   Future<int> _addTask(Task task, Database db) async {
-    logger.e('TAG add this task : ${task.toJson()}');
     try {
       return await db.insert('tasks', task.toJson());
     } catch (e) {
-      logger.e('TAG add task error111 : $e');
       return -1;
     }
   }

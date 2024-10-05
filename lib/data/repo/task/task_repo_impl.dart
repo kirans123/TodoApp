@@ -19,10 +19,8 @@ class TaskRepoImpl extends TaskRepository {
       try {
         AppResponse response = await apiService
             .post(url: AppEndPoints.todos, data: {'title': title});
-        logger.e('TAG  add task: ${response.isSuccess} $response');
         return response.isSuccess;
       } catch (e) {
-        logger.e('TAG  add task error : $e');
         throw RepoException(e.toString());
       }
     }
@@ -44,7 +42,6 @@ class TaskRepoImpl extends TaskRepository {
         AppResponse response = await apiService.patch(
             url: '${AppEndPoints.todos}/${task.id}',
             data: {'completed': !task.completed});
-        logger.e('TAG : ${response.isSuccess}');
         if (!response.isSuccess) {
           throw RepoException(response.message);
         }

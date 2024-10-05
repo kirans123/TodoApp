@@ -165,7 +165,6 @@ class ApiServiceImpl implements ApiService {
   ) async {
     try {
       final response = await apiCall();
-      logger.e('TAG API RESPONSE --> $response');
       return AppResponse.fromDioResponse(response);
     } on DioException catch (e, s) {
       if (e.type == DioExceptionType.connectionError) {
@@ -196,7 +195,6 @@ class ApiServiceImpl implements ApiService {
     _dio.interceptors.add(
       SessionExpiredInterceptor(
         onSessionExpired401: (error, handler) {
-          logger.e('TAG INTERCEPTOR --> ${error.message}');
           logout();
         },
       ),

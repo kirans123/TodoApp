@@ -60,7 +60,6 @@ class HomeScreen extends StatelessWidget {
           }
         },
         builder: (context, state) {
-          // logger.e('TAG State: $state');
           final List<Task> tasks = [];
           if (state is TaskLoadingState) {
             return const Center(child: CircularProgressIndicator());
