@@ -24,6 +24,10 @@ flutter pub get
 1. As we have used firebase for login and registration , so for login and registration it is mandatory to have your device to connected to the Internet
 2. Once you done with login, you can do CRUD operation offline.
 
+### Video and apk of the app
+
+[Link] (https://drive.google.com/drive/folders/10MRUHBFZAq_iddSG7ix51UgXGlZn_czd?usp=sharing)
+
 ## Below things are covered in this project
 
 1. SOLID principles followed
