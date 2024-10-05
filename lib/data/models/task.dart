@@ -15,6 +15,18 @@ class Task {
           : json['completed'] == 1, // Handle both bool and int
     );
   }
+  //copyWith method
+  Task copyWith({
+    int? id,
+    String? title,
+    bool? completed,
+  }) {
+    return Task(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      completed: completed ?? this.completed,
+    );
+  }
 
   // To JSON
   Map<String, dynamic> toJson() {

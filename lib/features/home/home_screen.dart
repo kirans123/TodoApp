@@ -5,6 +5,7 @@ import 'package:login_and_registration/app/widgets/app_button.dart';
 import 'package:login_and_registration/app/widgets/custom_text_form_widget.dart';
 import 'package:login_and_registration/app/widgets/logout_dialog.dart';
 import 'package:login_and_registration/data/init/init_service.dart';
+import 'package:login_and_registration/data/models/task.dart';
 import 'package:login_and_registration/features/home/bloc/task_bloc.dart';
 import 'package:login_and_registration/features/home/search_text_delegate.dart';
 import 'package:login_and_registration/utils/extensions/theme_extension.dart';
@@ -48,38 +49,45 @@ class HomeScreen extends StatelessWidget {
         create: (context) => TaskBloc()..add(LoadTasksEvent()),
         child: BlocBuilder<TaskBloc, TaskState>(
           builder: (context, state) {
+            logger.e('TAG State: $state');
+            final List<Task> tasks = [];
             if (state is TaskLoadingState) {
               return const Center(child: CircularProgressIndicator());
-            } else if (state is TaskLoadedState) {
-              return RefreshIndicator(
-                onRefresh: () async {
-                  context.read<TaskBloc>().add(LoadTasksEvent());
-                },
-                child: ListView.builder(
-                  itemCount: state.tasks.length,
-                  itemBuilder: (context, index) {
-                    final task = state.tasks[index];
-                    return ListTile(
-                      key: ValueKey(task.id),
-                      title: Text(task.title),
-                      trailing: Checkbox(
-                        value: task.completed,
-                        onChanged: (bool? value) {
-                          context.read<TaskBloc>().add(CompleteTaskEvent(task));
-                        },
-                      ),
-                      onLongPress: () {
-                        context.read<TaskBloc>().add(DeleteTaskEvent(task));
-                      },
-                    );
-                  },
-                ),
-              );
             } else if (state is TaskErrorState) {
               return Center(child: Text(state.message));
-            } else {
-              return Container();
+            } else if (state is TaskLoadedState) {
+              tasks.addAll(state.tasks);
+            } else if (state is TaskCompletedState) {
+              tasks.clear();
+              tasks.addAll(state.tasks);
+            } else if (state is TaskDeletedState) {
+              tasks.clear();
+              tasks.addAll(state.tasks);
             }
+            return RefreshIndicator(
+              onRefresh: () async {
+                context.read<TaskBloc>().add(LoadTasksEvent());
+              },
+              child: ListView.builder(
+                itemCount: tasks.length,
+                itemBuilder: (context, index) {
+                  final task = tasks[index];
+                  return ListTile(
+                    key: ValueKey(task.id),
+                    title: Text(task.title),
+                    trailing: Checkbox(
+                      value: task.completed,
+                      onChanged: (bool? value) {
+                        context.read<TaskBloc>().add(CompleteTaskEvent(task));
+                      },
+                    ),
+                    onLongPress: () {
+                      context.read<TaskBloc>().add(DeleteTaskEvent(task));
+                    },
+                  );
+                },
+              ),
+            );
           },
         ),
       ),

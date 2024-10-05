@@ -91,6 +91,11 @@ if (action == 'add') {
 await taskDaoService.deleteSyncQueueItem(change['id']);
 ```
 
+4. As [JsonPlaceholderGuide](https://jsonplaceholder.typicode.com/guide/) suggested that **_Important: resource will not be really updated on the server but it will be faked as if._** , so I followed below steps
+   a. If user is online then check in local whether we have tasks or not, if yes then return if no then fetch from server and store into the local db.
+   b. Anyways fetched the data from local database only
+   c. For any add,update,delete operation if device is online then do the suggested changes on server and then again (whether user is online/offline) perform this suggested action (add,update,delete) on local database
+
 # Here’s a quick confirmation of your logic:
 
 1. Singleton of TaskDaoService using getIt:

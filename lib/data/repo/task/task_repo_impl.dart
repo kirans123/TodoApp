@@ -3,6 +3,7 @@ import 'package:login_and_registration/data/models/task.dart';
 import 'package:login_and_registration/data/repo/task/task_repo.dart';
 import 'package:login_and_registration/data/services/api/models/app_response.dart';
 import 'package:login_and_registration/utils/constants/end_points.dart';
+import 'package:login_and_registration/utils/constants/keys.dart';
 import 'package:login_and_registration/utils/exception/exception.dart';
 
 class TaskRepoImpl extends TaskRepository {
@@ -80,10 +81,14 @@ class TaskRepoImpl extends TaskRepository {
 
   @override
   Future<List<Task>> fetchTasks() async {
-    /* if (await connectivityService.isConnected) {
+    if (await connectivityService.isConnected) {
       try {
-        //now first fetch all tasks from local database and remove all tasks from the local database
-        await taskDaoService.deleteAllTasks();
+        //now first we will check if there are any tasks in the local database, if yes the fetch from the local database
+        List<Task> tasks = await taskDaoService.getTasks();
+        if (tasks.isNotEmpty) {
+          return tasks;
+        }
+        //if  no tasks in the local database then fetch from the server and add to the local database
         AppResponse response = await apiService.get(url: AppEndPoints.todos);
         if (response.isSuccess) {
           List<Task> taskList = response.data.isNotEmpty
@@ -103,9 +108,8 @@ class TaskRepoImpl extends TaskRepository {
       } catch (e) {
         throw RepoException(e.toString());
       }
-    } else {*/
-
-    return await taskDaoService.getTasks();
-    // }
+    } else {
+      return await taskDaoService.getTasks();
+    }
   }
 }
