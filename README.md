@@ -6,7 +6,7 @@
 
 1. Flutter SDK: [Install Flutter](https://docs.flutter.dev/get-started/install)
 2. Dart SDK: (Comes with Flutter)
-3. [Xcode] (https://apps.apple.com/us/app/xcode/id497799835?mt=12) (for iOS development): if we want to running the app on iOS devices. Install Xcode
+3. [Xcode](https://apps.apple.com/us/app/xcode/id497799835?mt=12) (for iOS development): if we want to running the app on iOS devices. Install Xcode
 4. [Android Studio](https://developer.android.com/studio) (for Android development): Required for running the app on Android devices. Install Android Studio
 5. Clone the Repository - git clone https://github.com/kirans123/TodoApp.git
 6. cd TodoApp
@@ -27,7 +27,7 @@ flutter run --dart-define-from-file=env/dev.json
 
 ## Video and apk of the app
 
-[Link] (https://drive.google.com/drive/folders/10MRUHBFZAq_iddSG7ix51UgXGlZn_czd?usp=sharing)
+[Link](https://drive.google.com/drive/folders/10MRUHBFZAq_iddSG7ix51UgXGlZn_czd?usp=sharing)
 
 ## Below things are covered in this project
 
