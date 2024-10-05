@@ -64,6 +64,7 @@ class HomeScreen extends StatelessWidget {
           if (state is TaskLoadingState) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is TaskLoadedState) {
+            tasks.clear();
             tasks.addAll(state.tasks);
           } else if (state is TaskCompletedState) {
             tasks.clear();

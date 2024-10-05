@@ -14,6 +14,7 @@
 
 ```sh
 flutter pub get
+flutter run --dart-define-from-file=env/dev.json
 ```
 
 8. Do SignUp by clicking on Sign Up button
