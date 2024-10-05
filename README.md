@@ -17,7 +17,7 @@ flutter pub get
 flutter run --dart-define-from-file=env/dev.json
 ```
 
-8. Do SignUp by clicking on Sign Up button
+8. Do SignUp by clicking on Sign Up button (user can do SignUp by any test email also)
 9. So Login with the specified credentials , i.e email and password you used while sign up
 
 ## Mandatory
