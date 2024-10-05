@@ -28,9 +28,12 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   // Add task using TaskRepository
   Future<void> _addTask(AddTaskEvent event, Emitter<TaskState> emit) async {
     try {
-      await taskRepository.addTask(event.title);
-      // emit(TaskAddedState(newTask));
-      add(LoadTasksEvent()); // Re-fetch tasks after adding a new task
+      final isAdded = await taskRepository.addTask(event.title);
+      if (isAdded) {
+        emit(TaskAddedState());
+      } else {
+        emit(TaskErrorState('Failed to add task'));
+      }
     } catch (e) {
       emit(TaskErrorState('Failed to add task: $e'));
     }
@@ -41,8 +44,6 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       CompleteTaskEvent event, Emitter<TaskState> emit) async {
     try {
       await taskRepository.completeTask(event.task);
-      // emit(TaskCompletedState(event.task));
-      // add(LoadTasksEvent()); // Re-fetch tasks after completing a task
       //no need to reload tasks after completing a task, just update the task in the list of local tasks
 
       //take the tasks from the TaskLoadedState or TaskCompletedState or TaskDeletedState
@@ -70,8 +71,6 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       DeleteTaskEvent event, Emitter<TaskState> emit) async {
     try {
       await taskRepository.deleteTask(event.task);
-      // emit(TaskDeletedState(event.task));
-      // add(LoadTasksEvent()); // Re-fetch tasks after deleting a task
       //no need to reload tasks after deleting a task, just update the task in the list of local tasks
       //take the tasks from the TaskLoadedState or TaskCompletedState or TaskDeletedState
       final tasks = state is TaskLoadedState

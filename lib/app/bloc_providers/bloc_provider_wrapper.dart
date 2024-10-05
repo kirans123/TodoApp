@@ -15,7 +15,7 @@ class BlocProviderWrapper extends StatelessWidget {
         BlocProvider<AuthBloc>(
           create: (context) => AuthBloc(),
         ),
-        BlocProvider(create: (context) => TaskBloc()),
+        BlocProvider(create: (context) => TaskBloc()..add(LoadTasksEvent())),
       ],
       child: child,
     );

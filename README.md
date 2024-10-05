@@ -1,6 +1,28 @@
-# login_and_registration
+# Todo Application
 
-A new Flutter project.
+# Setup Instructions
+
+## Prerequisites
+
+1. Flutter SDK: [Install Flutter](https://docs.flutter.dev/get-started/install)
+2. Dart SDK: (Comes with Flutter)
+3. [Xcode] (https://apps.apple.com/us/app/xcode/id497799835?mt=12) (for iOS development): if we want to running the app on iOS devices. Install Xcode
+4. [Android Studio](https://developer.android.com/studio) (for Android development): Required for running the app on Android devices. Install Android Studio
+5. Clone the Repository - git clone https://github.com/kirans123/TodoApp.git
+6. cd TodoApp
+7. run command -
+
+```sh
+flutter pub get
+```
+
+8. Do SignUp by clicking on Sign Up button
+9. So Login with the specified credentials , i.e email and password you used while sign up
+
+## Mandatory
+
+1. As we have used firebase for login and registration , so for login and registration it is mandatory to have your device to connected to the Internet
+2. Once you done with login, you can do CRUD operation offline.
 
 ## Below things are covered in this project
 
@@ -12,7 +34,7 @@ A new Flutter project.
 6. Error Service
 7. Log Service
 8. Developer Screen added for checking developer actions on dev environment
-9. BlocProvider Wrapper Added with repository
+9. BlocProvider Wrapper Added with BlocProvider
 10. Login and Registration using email and password added by using Firebase
 
 ## Flutter Mobile App
@@ -30,7 +52,7 @@ A new Flutter project.
 1. Implement events for loading tasks, adding tasks, completing tasks, and deleting tasks.
    2 Use StreamBuilder or BlocBuilder to rebuild the UI based on state changes.
 
-# API Integration:
+## API Integration:
 
 Integrate with the JSONPlaceholder API (https://jsonplaceholder.typicode.com) using the following endpoints:
 
@@ -40,13 +62,13 @@ Integrate with the JSONPlaceholder API (https://jsonplaceholder.typicode.com) us
 4. DELETE /todos/: Delete a todo.
    5 Handle error scenarios and display appropriate messages to the user.
 
-# Offline Support:
+## Offline Support:
 
 1. Cache todos locally for offline access.
 2. Implement optimistic updates for a better user experience.
 3. Sync local changes with the server when the connection is restored.
 
-# Additional Features:
+## Additional Features:
 
 1. Add a simple search functionality to filter todos.
 2. Implement pull-to-refresh for the todo list.
@@ -92,11 +114,10 @@ await taskDaoService.deleteSyncQueueItem(change['id']);
 ```
 
 4. As [JsonPlaceholderGuide](https://jsonplaceholder.typicode.com/guide/) suggested that **_Important: resource will not be really updated on the server but it will be faked as if._** , so I followed below steps
-   a. If user is online then check in local whether we have tasks or not, if yes then return if no then fetch from server and store into the local db.
-   b. Anyways fetched the data from local database only
-   c. For any add,update,delete operation if device is online then do the suggested changes on server and then again (whether user is online/offline) perform this suggested action (add,update,delete) on local database
 
-# Here’s a quick confirmation of your logic:
+   1. If user is online then check in local whether we have tasks or not, if yes then return if no then fetch from server and store into the local db.
+   2. Anyways fetched the data from local database only
+   3. For any add,update,delete operation if device is online then do the suggested changes on server and then again (whether user is online/offline) perform this suggested action (add,update,delete) on local database
 
 1. Singleton of TaskDaoService using getIt:
 
@@ -113,3 +134,119 @@ c. Tasks are always stored locally regardless of the network status.
 a. Monitors connectivity status.
 b. Upon reconnecting to the internet, it fetches pending tasks from sync_queue and processes each one based on its action (add, update, delete) by calling the corresponding API in TaskRepo.
 c. After syncing, the task is removed from the sync_queue.
+
+# A brief explanation of the BLoC pattern implementation.
+
+The TaskBloc class is an implementation of the BLoC (Business Logic Component) pattern in Flutter. It manages tasks by responding to events and emitting states, ensuring that the UI is updated accordingly. This bloc is responsible for loading, adding, completing, and deleting tasks using a task repository.
+
+## Events
+
+### The TaskBloc listens to the following events:
+
+1. LoadTasksEvent: Triggers loading of tasks.
+2. AddTaskEvent: Triggers the addition of a new task.
+3. CompleteTaskEvent: Marks a task as complete.
+4. DeleteTaskEvent: Deletes a task.
+
+## States
+
+### The TaskBloc can emit the following states:
+
+1. TaskLoadingState: Emitted when tasks are being loaded.
+2. TaskLoadedState: Emitted when tasks are successfully loaded.
+3. TaskAddedState: Emitted when a task is successfully added.
+4. TaskCompletedState: Emitted when a task is successfully completed.
+5. TaskDeletedState: Emitted when a task is successfully deleted.
+6. TaskErrorState: Emitted when an error occurs during any operation.
+
+## Implementation Details
+
+1. Loading Tasks (\_loadTasks)
+   When the LoadTasksEvent is triggered, the TaskBloc fetches tasks from the repository and emits either:
+
+TaskLoadedState (if successful), or
+TaskErrorState (if an error occurs).
+
+```sh
+Future<void> _loadTasks(LoadTasksEvent event, Emitter<TaskState> emit) async {
+  emit(TaskLoadingState());
+  try {
+    final tasks = await taskRepository.fetchTasks();
+    emit(TaskLoadedState(tasks));
+  } catch (e) {
+    emit(TaskErrorState('Failed to load tasks: $e'));
+  }
+}
+
+```
+
+2. Adding a Task (\_addTask)
+   When the AddTaskEvent is triggered, the TaskBloc adds a new task via the repository and emits:
+
+TaskAddedState (if successful), or
+TaskErrorState (if the task couldn't be added).
+
+```sh
+Future<void> _addTask(AddTaskEvent event, Emitter<TaskState> emit) async {
+  try {
+    final isAdded = await taskRepository.addTask(event.title);
+    if (isAdded) {
+      emit(TaskAddedState());
+    } else {
+      emit(TaskErrorState('Failed to add task'));
+    }
+  } catch (e) {
+    emit(TaskErrorState('Failed to add task: $e'));
+  }
+}
+```
+
+3. Completing a Task (\_completeTask)
+   The CompleteTaskEvent marks a task as completed. Instead of re-fetching all tasks from the server, it simply updates the local list of tasks, toggling the completed status of the specific task.
+
+```sh
+Future<void> _completeTask(CompleteTaskEvent event, Emitter<TaskState> emit) async {
+  try {
+    await taskRepository.completeTask(event.task);
+    final tasks = _getCurrentTasks(state); // Retrieves current tasks from the state
+    final index = tasks.indexWhere((t) => t.id == event.task.id);
+    if (index != -1) {
+      tasks[index] = Task(
+          id: event.task.id,
+          title: event.task.title,
+          completed: !event.task.completed); // Toggle the completion status
+      emit(TaskCompletedState(tasks));
+    }
+  } catch (e) {
+    emit(TaskErrorState('Failed to complete task: $e'));
+  }
+}
+```
+
+4. Deleting a Task (\_deleteTask)
+   The DeleteTaskEvent removes a task. Similar to task completion, the local list of tasks is updated by removing the deleted task without fetching all tasks again.
+
+```sh
+Future<void> _deleteTask(DeleteTaskEvent event, Emitter<TaskState> emit) async {
+  try {
+    await taskRepository.deleteTask(event.task);
+    final tasks = _getCurrentTasks(state); // Retrieves current tasks from the state
+    tasks.removeWhere((t) => t.id == event.task.id);
+    emit(TaskDeletedState(tasks));
+  } catch (e) {
+    emit(TaskErrorState('Failed to delete task: $e'));
+  }
+}
+```
+
+Earlier \_completeTask() and **deleteTask() was emitting the same state as TaskLoadedState, so data was not updating for update and delete, so I emitted TaskCompletedState() and TaskDeletedState() state respectively for \_completeTask() and **deleteTask(), by taking current tasks with the below condition check as
+
+```sh
+final tasks = state is TaskLoadedState
+    ? List<Task>.from((state as TaskLoadedState).tasks)
+    : state is TaskCompletedState
+        ? List<Task>.from((state as TaskCompletedState).tasks)
+        : List<Task>.from((state as TaskDeletedState).tasks);
+```
+
+and updated and deleted tasks respectively.

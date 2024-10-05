@@ -23,11 +23,9 @@ class TaskLoadedState extends TaskState {
 }
 
 class TaskAddedState extends TaskState {
-  final Task task;
-
-  TaskAddedState(this.task);
+  TaskAddedState();
   @override
-  List<Object?> get props => [task];
+  List<Object?> get props => [];
 }
 
 class TaskCompletedState extends TaskState {

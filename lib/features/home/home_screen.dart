@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:login_and_registration/app/router/routes.dart';
-import 'package:login_and_registration/app/widgets/app_button.dart';
-import 'package:login_and_registration/app/widgets/custom_text_form_widget.dart';
 import 'package:login_and_registration/app/widgets/logout_dialog.dart';
 import 'package:login_and_registration/data/init/init_service.dart';
 import 'package:login_and_registration/data/models/task.dart';
+import 'package:login_and_registration/features/home/add_task_widget.dart';
 import 'package:login_and_registration/features/home/bloc/task_bloc.dart';
 import 'package:login_and_registration/features/home/search_text_delegate.dart';
-import 'package:login_and_registration/utils/extensions/theme_extension.dart';
-import 'package:login_and_registration/utils/mixins/form_validation.dart';
+import 'package:login_and_registration/features/home/task_widget.dart';
+import 'package:login_and_registration/utils/extensions/context_extension.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -23,8 +22,12 @@ class HomeScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              final tasks =
-                  (context.read<TaskBloc>().state as TaskLoadedState).tasks;
+              final state = context.read<TaskBloc>().state;
+              final tasks = state is TaskLoadedState
+                  ? List<Task>.from((state).tasks)
+                  : state is TaskCompletedState
+                      ? List<Task>.from((state).tasks)
+                      : List<Task>.from((state as TaskDeletedState).tasks);
               showSearch(context: context, delegate: TaskSearchDelegate(tasks));
             },
           ),
@@ -45,51 +48,37 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: BlocProvider(
-        create: (context) => TaskBloc()..add(LoadTasksEvent()),
-        child: BlocBuilder<TaskBloc, TaskState>(
-          builder: (context, state) {
-            logger.e('TAG State: $state');
-            final List<Task> tasks = [];
-            if (state is TaskLoadingState) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (state is TaskErrorState) {
-              return Center(child: Text(state.message));
-            } else if (state is TaskLoadedState) {
-              tasks.addAll(state.tasks);
-            } else if (state is TaskCompletedState) {
-              tasks.clear();
-              tasks.addAll(state.tasks);
-            } else if (state is TaskDeletedState) {
-              tasks.clear();
-              tasks.addAll(state.tasks);
-            }
-            return RefreshIndicator(
+      body: BlocConsumer(
+        bloc: context.read<TaskBloc>(),
+        listener: (context, state) {
+          if (state is TaskAddedState) {
+            context.read<TaskBloc>().add(LoadTasksEvent());
+            context.snackBarSuccess('Task added successfully');
+          }
+          if (state is TaskErrorState) {
+            context.snackBarError(state.message);
+          }
+        },
+        builder: (context, state) {
+          // logger.e('TAG State: $state');
+          final List<Task> tasks = [];
+          if (state is TaskLoadingState) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is TaskLoadedState) {
+            tasks.addAll(state.tasks);
+          } else if (state is TaskCompletedState) {
+            tasks.clear();
+            tasks.addAll(state.tasks);
+          } else if (state is TaskDeletedState) {
+            tasks.clear();
+            tasks.addAll(state.tasks);
+          }
+          return RefreshIndicator(
               onRefresh: () async {
                 context.read<TaskBloc>().add(LoadTasksEvent());
               },
-              child: ListView.builder(
-                itemCount: tasks.length,
-                itemBuilder: (context, index) {
-                  final task = tasks[index];
-                  return ListTile(
-                    key: ValueKey(task.id),
-                    title: Text(task.title),
-                    trailing: Checkbox(
-                      value: task.completed,
-                      onChanged: (bool? value) {
-                        context.read<TaskBloc>().add(CompleteTaskEvent(task));
-                      },
-                    ),
-                    onLongPress: () {
-                      context.read<TaskBloc>().add(DeleteTaskEvent(task));
-                    },
-                  );
-                },
-              ),
-            );
-          },
-        ),
+              child: TaskWidget(tasks: tasks));
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -101,37 +90,6 @@ class HomeScreen extends StatelessWidget {
         },
         child: const Icon(Icons.add),
       ),
-    );
-  }
-}
-
-class AddTaskDialog extends StatelessWidget with FormValidationMixin {
-  final TextEditingController _controller = TextEditingController();
-
-  AddTaskDialog({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
-    return AlertDialog(
-      title: const Text('Add Task'),
-      content: CustomTextFormWidget(
-          labelText: 'Task',
-          hintText: 'Enter task',
-          controller: _controller,
-          validator: validateEmpty),
-      actions: [
-        SizedBox(
-          width: theme.sizing.s28,
-          child: AppButton(
-            onPressed: () {
-              context.read<TaskBloc>().add(AddTaskEvent(_controller.text));
-              Navigator.of(context).pop();
-            },
-            text: 'Add',
-          ),
-        ),
-      ],
     );
   }
 }
